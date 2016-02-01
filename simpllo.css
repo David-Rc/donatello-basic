@@ -1,0 +1,151 @@
+body{
+    background-color: #FAFcFb;
+}
+
+/* --- INDEX -------------------------------------- */
+
+h1{
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left:10px;
+    margin-right:10px;
+}
+
+#logout{
+    float: right;
+}
+
+.card-form{
+    width:380px;
+    background-color: #EEE;
+    padding: 0;
+    margin:0 auto;
+}
+
+.label-box{
+    width: 140px;
+    display: inline-block;
+    text-align: right;
+}
+
+.control-bar{
+    display: table;
+    width: 100%;
+    background-color: #888;
+}
+
+.control-bar a{
+    color: #AFF;
+    font-size: 0.9em;
+}
+
+.form-header-error{
+    background-color: #D00;
+    color:#FFF;
+    font-size: 0.9em;
+}
+
+.bt-validate{
+    width: 80px;
+}
+
+/* --- HOME -------------------------------------- */
+
+.info-box{
+    margin: 8px;
+    border-radius: 6px;
+    background-color: #CFD ;
+    padding:12px;
+}
+
+.box{
+    padding: 8px;
+    background-color: #EAEAEA;
+}
+
+#container{
+
+}
+
+.add{
+
+}
+
+#projects-box{
+    width: 20%;
+    display: inline-block;
+    vertical-align: top;
+}
+
+#detail-box{
+    width: 76%;
+    display: inline-block;
+    vertical-align: top;
+}
+
+#detail-box h2{
+    background-color: #e0e0e0;
+    padding:6px;
+}
+
+#detail-box h2 form{
+    display: inline-block;
+    float: right;
+}
+
+#detail-box .toolbar{
+    text-align: right;
+}
+
+
+.inline-form{
+    padding-left:16px;
+    display: inline-block;
+}
+
+.toolbar input{
+    margin-left:16px;
+}
+
+.category-box{
+
+}
+
+.project{
+    margin: 4px;
+    border-radius: 4px;
+    background-color: #D0D0D0;
+    padding:6px;
+}
+
+.selected {
+    background-color: #D0F0E0;
+}
+
+.category{
+    background-color: #D0F0E0;
+    padding: 10px;
+}
+
+.new-task-box{
+    padding: 10px;
+    background-color: #F0FFF0;
+}
+
+.new-task-box .t-input{
+    margin-left: 10px;
+    width: 40%;
+}
+.new-task-box .dt-input{
+    margin-left: 10px;
+    width: 80px;
+}
+
+.new-task-box button{
+    font-size: 1.1em;
+}
+
+.task-list li{
+    list-style: none;
+    padding: 4px;
+}
