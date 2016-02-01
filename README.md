@@ -1,6 +1,5 @@
 # Donatello - basic PHP
 
-+ require_once
-+ fonctions
-+ validations
-+ utils
+Correction PHP basique pour défi Simpllo / Trello like
+
+voir db.sql pour la table
