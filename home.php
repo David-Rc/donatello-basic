@@ -220,6 +220,7 @@ if ( isset( $_GET[ 'new_user' ] ) ) {
 
     </div>
 
+    <?php if ( isset( $currentProject ) ) { ?>
     <div id="detail-box">
         <div class="detail-header">
 
@@ -296,6 +297,7 @@ if ( isset( $_GET[ 'new_user' ] ) ) {
         }
         ?>
     </div>
+    <?php } ?>
 </div>
 <script>
     function hideTutoLink() {
