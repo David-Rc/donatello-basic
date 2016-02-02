@@ -12,7 +12,7 @@ if ( isset( $_SESSION[ 'id_user' ] ) && isset( $_SESSION[ 'username' ] ) && isse
     <meta charset="UTF-8">
     <title>Identification</title>
     <link rel="stylesheet" href="../base.css"/>
-    <link rel="stylesheet" href="simpllo.css"/>
+    <link rel="stylesheet" href="styles/simpllo.css"/>
 </head>
 <body>
 

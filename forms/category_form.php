@@ -6,6 +6,8 @@ require_once "../inc/auth.php";
 require_once "../inc/db.php";
 require_once "../inc/utils.php";
 
+require_once "../templates/topbar.php";
+
 require_once "../managers/category_manager.php";
 
 $db = getDB();
@@ -21,6 +23,9 @@ if ( isset( $_POST[ "category_name" ] ) && isset( $_POST['id_project'] ) ) {
 ?>
 
 <?php require_once "../templates/head.php"; ?>
+<?php echo_topbar(); ?>
+
+
 
     <div><a href="../home.php">Retour à la liste</a></div>
 

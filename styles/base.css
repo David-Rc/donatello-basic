@@ -1,0 +1,50 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    box-sizing: border-box;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+div{
+    padding:8px;
+}
+
+button{
+    padding: 6px;
+}
+
+input{
+    padding: 6px;
+    font-size: 1.1em;
+}
+
+.l{
+    float: left;
+}
+
+.r{
+    float: right;
+}
+
+.clr{
+    float: none;
+}
+
+.pusher{
+    width: 90%;
+    display: table-cell;
+}
+
+.error{
+    color: red;
+}
