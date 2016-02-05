@@ -1,8 +1,8 @@
 <?php
 
-function echoHead ( $title )
+function echo_head ( $title )
 {
-    echo str_replace( '{{CATEGORY}}', 'test', '<!doctype html>
+    echo str_replace( '{{CATEGORY}}', $title, '<!doctype html>
 <html lang="fr_FR">
 <head>
     <meta charset="UTF-8">

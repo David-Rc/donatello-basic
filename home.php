@@ -145,6 +145,15 @@ $projects = getUserProjects( $_SESSION[ 'id_user' ] );
 if ( isset( $_GET[ 'selected_project' ] ) ) {
     $currentProjectId = $_GET[ 'selected_project' ];
     $currentProject = searchWhere( $projects, "id_project", $currentProjectId );
+    $_SESSION["selected_project_id"] = $currentProjectId;
+    $_SESSION["selected_project"] = $currentProject;
+
+    // print_r( $currentProject );
+} // si un projet est sélectionné ( session )
+else if ( isset( $_SESSION[ 'selected_project_id' ] ) ) {
+    $currentProjectId = $_SESSION[ 'selected_project_id' ];
+    $currentProject = $_SESSION[ 'selected_project' ];
+    //$currentProject = searchWhere( $projects, "id_project", $currentProjectId );
 
     // print_r( $currentProject );
 } else if ( count( $projects ) > 0 ) {
@@ -169,18 +178,7 @@ if ( isset( $currentProjectId ) ) {
     <title>Donatello - Home</title>
     <link rel="stylesheet" href="styles/base.css"/>
     <link rel="stylesheet" href="styles/simpllo.css"/>
-    <script type="text/javascript" src="lib/lib.js"></script>
-    <script>
-        function updateArchivesVisibility() {
-            var showArchives = byId('chk_showArchives').checked;
-            var tasks = byClass("task");
-            tasks.forEach(function (task) {
-                console.log('task state', task.dataset.complete);
-                if (task.dataset.complete == 1)
-                    task.style.display = showArchives ? 'block' : 'none';
-            })
-        }
-    </script>
+    <script type="text/javascript" src="js/lib.js"></script>
 </head>
 <body>
 
@@ -302,12 +300,25 @@ if ( isset( $_GET[ 'new_user' ] ) ) {
 </div>
 <script>
 
-    document.body.addEventListener('load', function(e){console.log('ONLOAD!!!');});
+
+
+    function updateArchivesVisibility() {
+        var showArchives = byId('chk_showArchives').checked;
+        var tasks = byClass("task");
+        tasks.forEach(function (task) {
+            console.log('task state', task.dataset.complete);
+            if (task.dataset.complete == 1)
+                task.style.display = showArchives ? 'block' : 'none';
+        })
+    }
 
     function hideTutoLink() {
         console.log('hideTutoLink');
         hide(byId('tutoLink'));
     }
+
+    window.onload = updateArchivesVisibility;
+
 </script>
 
 </body>
