@@ -2,7 +2,6 @@
 session_start();
 
 require_once "inc/auth.php";
-
 require_once "inc/db.php";
 require_once "inc/utils.php";
 
@@ -113,12 +112,74 @@ function clearArchives ( $idProject )
     return null;
 }
 
+function deleteProject($idProject){
+
+    global $db;
+
+    $q = "DELETE p.* FROM lo_projects AS p NATURAL JOIN lo_users_projects AS up WHERE p.`id_project`=:idProject AND up.id_user = :idUser";
+    error_log( $q );
+    try{
+        $query = $db->prepare($q);
+        $query->bindValue( ':idProject', $idProject, PDO::PARAM_INT );
+        $idUser = $_SESSION['id_user'];
+        $query->bindValue( ':idUser', $idUser, PDO::PARAM_INT );
+        return $query->execute();
+
+    } catch( PDOException $err){
+        error_log( '!!! ERROR | ' . __METHOD__ . ' | ' . $err->getCode() . " | " . $err->getMessage() . " | " . $err->errorInfo[ 1 ] );
+    }
+
+    return null;
+}
+
+function deselectProject(){
+    unset($_SESSION['selected_project_id']);
+    unset($_SESSION['selected_project']);
+}
+
 /*
  * SELF ACTIONS
 */
 
 if ( isset( $_POST[ "action" ] ) ) {
-    error_log( "POST ACTION " . $_POST[ "action" ] );
+
+    switch ( $_POST[ "action" ] ) {
+        case 'new_task':
+            if ( isset( $_POST[ "task_title" ] ) && isset( $_POST[ "id_category" ] ) )
+                if ( addTask( $_POST[ "task_title" ], $_POST[ "id_category" ] ) ) {
+                    header( "HTTP/1.1 302 Redirect" );
+                    header( "location:home.php" );
+                };
+            break;
+        case 'update_task_state':
+            if ( isset( $_POST[ "id_task" ] ) ) {
+                error_log( 'update task » ' . $_POST[ "id_task" ] . " " . isset( $_POST[ "is_complete" ] ) );
+                updateTask( $_POST[ "id_task" ], isset( $_POST[ "is_complete" ] ) );
+            }
+            break;
+        case 'clear_completed':
+            if ( isset( $_POST[ "id_project" ] ) ) {
+                error_log( 'clear_completed task » ' . $_POST[ "id_project" ] );
+                clearArchives( $_POST[ "id_project" ] );
+            }
+            break;
+        case 'delete_project':
+            if ( isset( $_POST[ "id_project" ] ) ) {
+                error_log( 'clear_completed task » ' . $_POST[ "id_project" ] );
+                if( deleteProject( $_POST[ "id_project" ] ) ){
+                    error_log( "project deleted" );
+                    deselectProject();
+                    header( "HTTP/1.1 302 Redirect" );
+                    header( "location:home.php" );
+                }
+            }
+            break;
+        default:
+            error_log('undefined action : '.$_POST[ "action" ]);
+            break;
+    }
+
+    /*error_log( "POST ACTION " . $_POST[ "action" ] );
     if ( $_POST[ "action" ] == 'new_task' ) {
         if ( isset( $_POST[ "task_title" ] ) && isset( $_POST[ "id_category" ] ) )
             if ( addTask( $_POST[ "task_title" ], $_POST[ "id_category" ] ) ) {
@@ -135,7 +196,7 @@ if ( isset( $_POST[ "action" ] ) ) {
             error_log( 'clear_completed task » ' . $_POST[ "id_project" ] );
             clearArchives( $_POST[ "id_project" ] );
         }
-    }
+    }*/
 }
 
 // recup les projets de l'utilisateur connecté
@@ -145,8 +206,8 @@ $projects = getUserProjects( $_SESSION[ 'id_user' ] );
 if ( isset( $_GET[ 'selected_project' ] ) ) {
     $currentProjectId = $_GET[ 'selected_project' ];
     $currentProject = searchWhere( $projects, "id_project", $currentProjectId );
-    $_SESSION["selected_project_id"] = $currentProjectId;
-    $_SESSION["selected_project"] = $currentProject;
+    $_SESSION[ "selected_project_id" ] = $currentProjectId;
+    $_SESSION[ "selected_project" ] = $currentProject;
 
     // print_r( $currentProject );
 } // si un projet est sélectionné ( session )
@@ -226,7 +287,9 @@ if ( isset( $_GET[ 'new_user' ] ) ) {
                 <h2><?php if ( isset( $currentProject ) ) {
                         echo $currentProject[ 'title' ];
                     } ?>
-                    <form action="<?php echo $_SERVER[ 'PHP_SELF' ]; ?>">
+                    <form action="<?php echo $_SERVER[ 'PHP_SELF' ]; ?>" method="post">
+                        <input type="hidden" name="id_project" value="<?php echo $currentProjectId ?>"/>
+                        <input type="hidden" name="action" value="delete_project"/>
                         <button>Supprimer</button>
                     </form>
                     <span class="clr"></span>
@@ -299,8 +362,6 @@ if ( isset( $_GET[ 'new_user' ] ) ) {
     <?php } ?>
 </div>
 <script>
-
-
 
     function updateArchivesVisibility() {
         var showArchives = byId('chk_showArchives').checked;
