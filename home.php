@@ -112,29 +112,51 @@ function clearArchives ( $idProject )
     return null;
 }
 
-function deleteProject($idProject){
+function deleteProject ( $idProject )
+{
 
     global $db;
 
     $q = "DELETE p.* FROM lo_projects AS p NATURAL JOIN lo_users_projects AS up WHERE p.`id_project`=:idProject AND up.id_user = :idUser";
     error_log( $q );
-    try{
-        $query = $db->prepare($q);
+    try {
+        $query = $db->prepare( $q );
         $query->bindValue( ':idProject', $idProject, PDO::PARAM_INT );
-        $idUser = $_SESSION['id_user'];
+        $idUser = $_SESSION[ 'id_user' ];
         $query->bindValue( ':idUser', $idUser, PDO::PARAM_INT );
         return $query->execute();
 
-    } catch( PDOException $err){
+    } catch ( PDOException $err ) {
         error_log( '!!! ERROR | ' . __METHOD__ . ' | ' . $err->getCode() . " | " . $err->getMessage() . " | " . $err->errorInfo[ 1 ] );
     }
 
     return null;
 }
 
-function deselectProject(){
-    unset($_SESSION['selected_project_id']);
-    unset($_SESSION['selected_project']);
+function deleteCategory( $idCategory )
+{
+    global $db;
+
+    $q = "DELETE * FROM lo_category as c NATURAL JOIN lo_users_projects as up WHERE `id_category`=:idCategory AND `up`.`id_user` = :idUser";
+    error_log( $q );
+    try {
+        $query = $db->prepare( $q );
+        $query->bindValue( ':idCategory', $idCategory, PDO::PARAM_INT );
+        $idUser = $_SESSION[ 'id_user' ];
+        $query->bindValue( ':idUser', $idUser, PDO::PARAM_INT );
+        return $query->execute();
+
+    } catch ( PDOException $err ) {
+        error_log( '!!! ERROR | ' . __METHOD__ . ' | ' . $err->getCode() . " | " . $err->getMessage() . " | " . $err->errorInfo[ 1 ] );
+    }
+
+    return null;
+}
+
+function deselectProject ()
+{
+    unset( $_SESSION[ 'selected_project_id' ] );
+    unset( $_SESSION[ 'selected_project' ] );
 }
 
 /*
@@ -165,8 +187,8 @@ if ( isset( $_POST[ "action" ] ) ) {
             break;
         case 'delete_project':
             if ( isset( $_POST[ "id_project" ] ) ) {
-                error_log( 'clear_completed task » ' . $_POST[ "id_project" ] );
-                if( deleteProject( $_POST[ "id_project" ] ) ){
+                error_log( 'delete_project task » ' . $_POST[ "id_project" ] );
+                if ( deleteProject( $_POST[ "id_project" ] ) ) {
                     error_log( "project deleted" );
                     deselectProject();
                     header( "HTTP/1.1 302 Redirect" );
@@ -174,29 +196,21 @@ if ( isset( $_POST[ "action" ] ) ) {
                 }
             }
             break;
+        case 'delete_category':
+            if ( isset( $_POST[ "id_category" ] ) ) {
+                error_log( 'delete_category task » ' . $_POST[ "id_category" ] );
+                if ( deleteCategory( $_POST[ "id_category" ] ) ) {
+                    error_log( "category deleted" );
+                    //deselectProject();
+                    header( "HTTP/1.1 302 Redirect" );
+                    header( "location:home.php" );
+                }
+            }
+            break;
         default:
-            error_log('undefined action : '.$_POST[ "action" ]);
+            error_log( 'undefined action : ' . $_POST[ "action" ] );
             break;
     }
-
-    /*error_log( "POST ACTION " . $_POST[ "action" ] );
-    if ( $_POST[ "action" ] == 'new_task' ) {
-        if ( isset( $_POST[ "task_title" ] ) && isset( $_POST[ "id_category" ] ) )
-            if ( addTask( $_POST[ "task_title" ], $_POST[ "id_category" ] ) ) {
-                header( "HTTP/1.1 302 Redirect" );
-                header( "location:home.php" );
-            };
-    } else if ( $_POST[ "action" ] == 'update_task_state' ) {
-        if ( isset( $_POST[ "id_task" ] ) ) {
-            error_log( 'update task » ' . $_POST[ "id_task" ] . " " . isset( $_POST[ "is_complete" ] ) );
-            updateTask( $_POST[ "id_task" ], isset( $_POST[ "is_complete" ] ) );
-        }
-    } else if ( $_POST[ "action" ] == 'clear_completed' ) {
-        if ( isset( $_POST[ "id_project" ] ) ) {
-            error_log( 'clear_completed task » ' . $_POST[ "id_project" ] );
-            clearArchives( $_POST[ "id_project" ] );
-        }
-    }*/
 }
 
 // recup les projets de l'utilisateur connecté
@@ -316,7 +330,12 @@ if ( isset( $_GET[ 'new_user' ] ) ) {
                 ?>
                 <div class="category-box">
                     <h4 class="category"><?php echo $name; ?>
-                        <span><a onclick="" href="<?php echo $_SERVER[ 'PHP_SELF' ]; ?>">Supprimer</a></span>
+                        <form action="<?php echo $_SERVER[ 'PHP_SELF' ]; ?>">
+                            <input type="hidden" name="id_category"
+                                   value="<?php echo $category[ 'id_category' ]; ?>"/>
+                            <input type="hidden" name="action" value="delete_category"/>
+                            <span><a onclick="this.form.submit()" href="#">Supprimer</a></span>
+                        </form>
                     </h4>
                     <div class="new-task-box">
                         <form action="<?php echo $_SERVER[ 'PHP_SELF' ]; ?>" method="post">
