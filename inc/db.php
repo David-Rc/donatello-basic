@@ -12,9 +12,9 @@ function getDB(){
         $dbUser = "root";
         $dbPass = "root";
 
-        $db = new PDO("mysql:host=$dbHost; dbname=$dbName;charset=utf8", $dbUser, $dbPass);
-    } catch( Exception $e ){
-        die("Erreur de connexion : $e->getMessage()");
+        $db = new PDO("mysql:host=$dbHost:3306;dbname=$dbName", $dbUser, $dbPass);
+    } catch( PDOException $e ){
+        die("Erreur de connexion : $e");
     }
 
     return $db;
