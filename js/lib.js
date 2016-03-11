@@ -47,8 +47,17 @@ function byClass(className) {
 }
 
 
-function hide(el){
+function hide(el) {
     el.style.display = 'none';
+}
+
+function hidden(elId,value) {
+    var op = value ? addClass : rmClass;
+    if( typeof elId  === "string" )
+        op(byId(elId), 'hidden');
+    else
+        op(elId, 'hidden');
+
 }
 
 /**
@@ -64,14 +73,34 @@ function href(text, link) {
     return a;
 }
 
+function hrev(text, callback) {
+    var a = document.createElement('a');
+    a.setAttribute('href', '#');
+    a.addEventListener('click', callback);
+    a.textContent = text;
+    return a;
+}
+
 function removeChildren(container) {
     [].slice.call(container.children).forEach(function (item) {
-        container.removeChild(item);
+            container.removeChild(item);
         }
     )
 }
 
-function tNode(text){
+function children(parent){
+    return [].slice.call(parent.children);
+}
+
+function mapChild(parent, action){
+    return child(parent).map(action);
+}
+
+function _el(tag) {
+    return document.createElement(tag);
+}
+
+function tNode(text) {
     return document.createTextNode(text);
 }
 
@@ -79,6 +108,26 @@ function tNode(text){
  * renvoie couleur aléatoire
  * @returns {string}
  */
-function randColr(){
-    return '#'+Math.floor(Math.random()*16777215).toString(16);
+function randColr() {
+    return '#' + Math.floor(Math.random() * 16777215).toString(16);
+}
+
+function guid() {
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+    }
+
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+        s4() + '-' + s4() + s4() + s4();
+}
+
+/* DATA ******************/
+function setData(el, dataField, value) {
+    el.setAttribute("data-" + dataField.toLowerCase(), value);
+}
+
+function getData(el, dataField) {
+    return el.getAttribute("data-" + dataField.toLowerCase());
 }

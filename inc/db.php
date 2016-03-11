@@ -7,12 +7,12 @@ function getDB(){
         return $db;
 
     try{
-        $dbHost = "localhost";
+        $dbHost = "localhost:3306";
         $dbName = "simpllo";
         $dbUser = "root";
         $dbPass = "root";
 
-        $db = new PDO("mysql:host=$dbHost:3306;dbname=$dbName", $dbUser, $dbPass);
+        $db = new PDO("mysql:host=$dbHost;dbname=$dbName", $dbUser, $dbPass);
     } catch( PDOException $e ){
         die("Erreur de connexion : $e");
     }

@@ -7,6 +7,9 @@ require_once "../inc/db.php";
 
 require_once "../managers/category_manager.php";
 
+require_once "../templates/topbar.php";
+require_once "../templates/head.php";
+
 $db = getDB();
 
 
@@ -46,24 +49,28 @@ function addProject ( $projectName )
             error_log( 'project_created' . $lastProjectId );
             // link project / user
             $link_result = linkItems( "lo_users_projects", "id_user", $_SESSION[ 'id_user' ],"id_project", $lastProjectId );
+            if( $link_result == false ) return 0;
 
             // creation d'une categorie Todo par défaut
             $defaultCategoryResult = addDefaultCategory($lastProjectId) ;
         }
-
-        return $link_result;
+        return $link_result && $defaultCategoryResult ? $lastProjectId : 0;
     }
 }
 
 if ( isset( $_POST[ 'project_name' ] ) ) {
-    if ( addProject( $_POST[ 'project_name' ] ) ) {
-        header( 'location:../home.php');
+    $newProjectId = addProject( $_POST[ 'project_name' ] );
+    if ( $newProjectId > 0 ) {
+        // si l'ajout à fonctionné on redirige vers la page home en pré-selectionnant le nouveau projet
+        header( 'location:../home.php?selected_project='.$newProjectId);
     } else
         header( 'location:' . $_SERVER[ 'PHP_SELF' ] );
 }
 ?>
 
-<?php require_once "../templates/head.php"; ?>
+<?php echo_head(); ?>
+
+<?php echo_topbar(); ?>
 
 <div class="card-form">
 
@@ -72,6 +79,9 @@ if ( isset( $_POST[ 'project_name' ] ) ) {
             <div class="form-header-error">Erreur : le projet n'a pu être créé !</div>
         <?php } ?>
 
+        <div class="form-header">
+            Nouveau projet
+        </div>
         <div>
             <div class="label-box"><label for="fld_project_name">Nom du projet</label></div>
             <input id="fld_project_name" name="project_name">

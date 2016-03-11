@@ -5,6 +5,7 @@
 
 html {
     box-sizing: border-box;
+    height: 100%;
 }
 
 *, *:before, *:after {
@@ -13,10 +14,11 @@ html {
 
 body {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    min-height: 100%;
 }
 
 div{
-    padding:8px;
+    /*padding:0px;*/
 }
 
 button{
@@ -26,6 +28,10 @@ button{
 input{
     padding: 6px;
     font-size: 1.1em;
+}
+
+.hidden{
+    display: none;
 }
 
 .l{
@@ -41,7 +47,7 @@ input{
 }
 
 .pusher{
-    width: 90%;
+
     display: table-cell;
 }
 

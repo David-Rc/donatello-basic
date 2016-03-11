@@ -1,0 +1,8 @@
+[10-Mar-2016 11:23:29 UTC] project_created38
+[10-Mar-2016 11:23:29 UTC] Q INSERT INTO `lo_users_projects` (`id_user`, `id_project`) VALUES (:id1, :id2) 
+[10-Mar-2016 11:27:14 UTC] project_created39
+[10-Mar-2016 11:27:14 UTC] Q INSERT INTO `lo_users_projects` (`id_user`, `id_project`) VALUES (:id1, :id2) 
+[10-Mar-2016 16:38:44 UTC] project_created40
+[10-Mar-2016 16:38:44 UTC] Q INSERT INTO `lo_users_projects` (`id_user`, `id_project`) VALUES (:id1, :id2) 
+[10-Mar-2016 20:43:31 UTC] project_created41
+[10-Mar-2016 20:43:31 UTC] Q INSERT INTO `lo_users_projects` (`id_user`, `id_project`) VALUES (:id1, :id2) 

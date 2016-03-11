@@ -9,15 +9,15 @@ require_once "templates/topbar.php";
 
 $db = getDB();
 
-function getUserProjects ( $idUser )
+function getUserProjects($idUser)
 {
     global $db;
-    error_log( "getUserProjects $idUser" );
+    error_log("getUserProjects $idUser");
 
     $q = "SELECT id_project, title,notes FROM lo_projects ";
     $q .= " NATURAL JOIN lo_users_projects WHERE lo_users_projects.id_user = :idUser";
-    $req = $db->prepare( $q );
-    $req->bindParam( ":idUser", $idUser, PDO::PARAM_INT );
+    $req = $db->prepare($q);
+    $req->bindParam(":idUser", $idUser, PDO::PARAM_INT);
     $req->execute();
     $projects = $req->fetchAll();
     $req->closeCursor();
@@ -25,74 +25,74 @@ function getUserProjects ( $idUser )
 }
 
 
-function getProjectCategories ( $idProject )
+function getProjectCategories($idProject)
 {
     global $db;
 
     $q = "SELECT id_category, name, notes FROM lo_categories WHERE id_project = :idProject";
-    $req = $db->prepare( $q );
-    $req->bindParam( ":idProject", $idProject, PDO::PARAM_INT );
+    $req = $db->prepare($q);
+    $req->bindParam(":idProject", $idProject, PDO::PARAM_INT);
     $req->execute();
 
     $categories = $req->fetchAll();
-    foreach ( $categories as &$category ) {
-        $category[ 'tasks' ] = getCategoryTasks( $category[ 'id_category' ] );
-        error_log( 'num tasks ' . $category[ 'id_category' ] . " " . count( $category[ 'tasks' ] ) );
+    foreach ($categories as &$category) {
+        $category['tasks'] = getCategoryTasks($category['id_category']);
+        error_log('num tasks ' . $category['id_category'] . " " . count($category['tasks']));
     }
-    unset( $category );
+    unset($category);
     $req->closeCursor();
     return $categories;
 }
 
 
-function getCategoryTasks ( $idCategory )
+function getCategoryTasks($idCategory)
 {
     global $db;
 
     $q = "SELECT id_task, title, added, completed FROM lo_tasks WHERE `id_category`= :idCategory ";
     $q .= " ORDER BY completed ASC, added DESC";
     try {
-        $query = $db->prepare( $q );
-        $query->bindValue( ":idCategory", $idCategory, PDO::PARAM_INT );
+        $query = $db->prepare($q);
+        $query->bindValue(":idCategory", $idCategory, PDO::PARAM_INT);
         $query->execute();
 
         return $query->fetchAll();
-    } catch ( PDOException $err ) {
-        error_log( '!!! ERROR | ' . __METHOD__ . ' | ' . $err->getCode() . " | " . $err->getMessage() . " | " . $err->errorInfo[ 1 ] );
+    } catch (PDOException $err) {
+        error_log('!!! ERROR | ' . __METHOD__ . ' | ' . $err->getCode() . " | " . $err->getMessage() . " | " . $err->errorInfo[1]);
     }
 
     return null;
 }
 
-function addTask ( $title, $idCategory )
+function addTask($title, $idCategory)
 {
     global $db;
     $q = "INSERT INTO lo_tasks (`title`, `id_category`, `added`) ";
     $q .= "VALUES (:title, :idCategory, NOW())";
 
-    error_log( "addTask Q $q , $idCategory, $title" );
+    error_log("addTask Q $q , $idCategory, $title");
 
-    $req = $db->prepare( $q );
-    $req->bindParam( ":title", $title, PDO::PARAM_STR );
-    $req->bindParam( ":idCategory", $idCategory, PDO::PARAM_INT );
+    $req = $db->prepare($q);
+    $req->bindParam(":title", $title, PDO::PARAM_STR);
+    $req->bindParam(":idCategory", $idCategory, PDO::PARAM_INT);
 
     return $req->execute();
 }
 
-function updateTask ( $idTask, $completed )
+function updateTask($idTask, $completed)
 {
     global $db;
-    $q = "UPDATE lo_tasks SET `completed` = " . ( $completed == true ? 'NOW()' : 'NULL' ) . " WHERE `id_task`=:idTask ";
+    $q = "UPDATE lo_tasks SET `completed` = " . ($completed == true ? 'NOW()' : 'NULL') . " WHERE `id_task`=:idTask ";
 
-    error_log( "updateTask Q $q , $idTask, $completed" );
+    error_log("updateTask Q $q , $idTask, $completed");
 
-    $req = $db->prepare( $q );
-    $req->bindParam( ":idTask", $idTask, PDO::PARAM_INT );
+    $req = $db->prepare($q);
+    $req->bindParam(":idTask", $idTask, PDO::PARAM_INT);
 
     return $req->execute();
 }
 
-function clearArchives ( $idProject )
+function clearArchives($idProject)
 {
     global $db;
 
@@ -100,149 +100,150 @@ function clearArchives ( $idProject )
     $q .= "WHERE t.completed IS NOT NULL AND c.id_project = :idProject";
 
     try {
-        $query = $db->prepare( $q );
-        $query->bindValue( ':idProject', $idProject, PDO::PARAM_INT );
+        $query = $db->prepare($q);
+        $query->bindValue(':idProject', $idProject, PDO::PARAM_INT);
         $result = $query->execute();
 
         return $result;
-    } catch ( PDOException $err ) {
-        error_log( '!!! ERROR | ' . __METHOD__ . ' | ' . $err->getCode() . " | " . $err->getMessage() . " | " . $err->errorInfo[ 1 ] );
+    } catch (PDOException $err) {
+        error_log('!!! ERROR | ' . __METHOD__ . ' | ' . $err->getCode() . " | " . $err->getMessage() . " | " . $err->errorInfo[1]);
     }
 
     return null;
 }
 
-function deleteProject ( $idProject )
+function deleteProject($idProject)
 {
-
     global $db;
 
     $q = "DELETE p.* FROM lo_projects AS p NATURAL JOIN lo_users_projects AS up WHERE p.`id_project`=:idProject AND up.id_user = :idUser";
-    error_log( $q );
+    error_log($q);
     try {
-        $query = $db->prepare( $q );
-        $query->bindValue( ':idProject', $idProject, PDO::PARAM_INT );
-        $idUser = $_SESSION[ 'id_user' ];
-        $query->bindValue( ':idUser', $idUser, PDO::PARAM_INT );
+        $query = $db->prepare($q);
+        $query->bindValue(':idProject', $idProject, PDO::PARAM_INT);
+        $idUser = $_SESSION['id_user'];
+        $query->bindValue(':idUser', $idUser, PDO::PARAM_INT);
         return $query->execute();
 
-    } catch ( PDOException $err ) {
-        error_log( '!!! ERROR | ' . __METHOD__ . ' | ' . $err->getCode() . " | " . $err->getMessage() . " | " . $err->errorInfo[ 1 ] );
+    } catch (PDOException $err) {
+        error_log('!!! ERROR | ' . __METHOD__ . ' | ' . $err->getCode() . " | " . $err->getMessage() . " | " . $err->errorInfo[1]);
     }
 
     return null;
 }
 
-function deleteCategory( $idCategory )
+function deleteCategory($idCategory)
 {
     global $db;
-
-    $q = "DELETE * FROM lo_category as c NATURAL JOIN lo_users_projects as up WHERE `id_category`=:idCategory AND `up`.`id_user` = :idUser";
-    error_log( $q );
+    $q = "DELETE c.* FROM lo_categories as c NATURAL JOIN lo_users_projects as up WHERE `c`.`id_category`=:idCategory AND `up`.`id_user` = :idUser";
+    error_log($q);
     try {
-        $query = $db->prepare( $q );
-        $query->bindValue( ':idCategory', $idCategory, PDO::PARAM_INT );
-        $idUser = $_SESSION[ 'id_user' ];
-        $query->bindValue( ':idUser', $idUser, PDO::PARAM_INT );
+        $query = $db->prepare($q);
+        $query->bindValue(':idCategory', $idCategory, PDO::PARAM_INT);
+        $idUser = $_SESSION['id_user'];
+        $query->bindValue(':idUser', $idUser, PDO::PARAM_INT);
         return $query->execute();
 
-    } catch ( PDOException $err ) {
-        error_log( '!!! ERROR | ' . __METHOD__ . ' | ' . $err->getCode() . " | " . $err->getMessage() . " | " . $err->errorInfo[ 1 ] );
+    } catch (PDOException $err) {
+        error_log('!!! ERROR | ' . __METHOD__ . ' | ' . $err->getCode() . " | " . $err->getMessage() . " | " . $err->errorInfo[1]);
     }
 
     return null;
 }
 
-function deselectProject ()
+function deselectProject()
 {
-    unset( $_SESSION[ 'selected_project_id' ] );
-    unset( $_SESSION[ 'selected_project' ] );
+    unset($_SESSION['selected_project_id']);
+    unset($_SESSION['selected_project']);
 }
 
 /*
  * SELF ACTIONS
 */
 
-if ( isset( $_POST[ "action" ] ) ) {
+if (isset($_POST["action"])) {
 
-    switch ( $_POST[ "action" ] ) {
+    switch ($_POST["action"]) {
         case 'new_task':
-            if ( isset( $_POST[ "task_title" ] ) && isset( $_POST[ "id_category" ] ) )
-                if ( addTask( $_POST[ "task_title" ], $_POST[ "id_category" ] ) ) {
-                    header( "HTTP/1.1 302 Redirect" );
-                    header( "location:home.php" );
+            if (isset($_POST["task_title"]) && isset($_POST["id_category"]))
+                if (addTask($_POST["task_title"], $_POST["id_category"])) {
+                    header("HTTP/1.1 302 Redirect");
+                    header("location:home.php");
                 };
             break;
+
         case 'update_task_state':
-            if ( isset( $_POST[ "id_task" ] ) ) {
-                error_log( 'update task » ' . $_POST[ "id_task" ] . " " . isset( $_POST[ "is_complete" ] ) );
-                updateTask( $_POST[ "id_task" ], isset( $_POST[ "is_complete" ] ) );
+            if (isset($_POST["id_task"])) {
+                error_log('update task » ' . $_POST["id_task"] . " " . isset($_POST["is_complete"]));
+                updateTask($_POST["id_task"], isset($_POST["is_complete"]));
             }
             break;
+
         case 'clear_completed':
-            if ( isset( $_POST[ "id_project" ] ) ) {
-                error_log( 'clear_completed task » ' . $_POST[ "id_project" ] );
-                clearArchives( $_POST[ "id_project" ] );
+            if (isset($_POST["id_project"])) {
+                error_log('clear_completed task » ' . $_POST["id_project"]);
+                clearArchives($_POST["id_project"]);
             }
             break;
+
         case 'delete_project':
-            if ( isset( $_POST[ "id_project" ] ) ) {
-                error_log( 'delete_project task » ' . $_POST[ "id_project" ] );
-                if ( deleteProject( $_POST[ "id_project" ] ) ) {
-                    error_log( "project deleted" );
+            if (isset($_POST["id_project"])) {
+                error_log('delete_project task » ' . $_POST["id_project"]);
+                if (deleteProject($_POST["id_project"])) {
+                    error_log("project deleted");
                     deselectProject();
-                    header( "HTTP/1.1 302 Redirect" );
-                    header( "location:home.php" );
+                    header("HTTP/1.1 302 Redirect");
+                    header("location:home.php");
                 }
             }
             break;
         case 'delete_category':
-            if ( isset( $_POST[ "id_category" ] ) ) {
-                error_log( 'delete_category task » ' . $_POST[ "id_category" ] );
-                if ( deleteCategory( $_POST[ "id_category" ] ) ) {
-                    error_log( "category deleted" );
+            if (isset($_POST["id_category"])) {
+                error_log('delete_category task » ' . $_POST["id_category"]);
+                if (deleteCategory($_POST["id_category"])) {
+                    error_log("category deleted");
                     //deselectProject();
-                    header( "HTTP/1.1 302 Redirect" );
-                    header( "location:home.php" );
+                    header("HTTP/1.1 302 Redirect");
+                    header("location:home.php");
                 }
             }
             break;
         default:
-            error_log( 'undefined action : ' . $_POST[ "action" ] );
+            error_log('undefined action : ' . $_POST["action"]);
             break;
     }
 }
 
 // recup les projets de l'utilisateur connecté
-$projects = getUserProjects( $_SESSION[ 'id_user' ] );
+$projects = getUserProjects($_SESSION['id_user']);
 
 // si un projet est sélectionné
-if ( isset( $_GET[ 'selected_project' ] ) ) {
-    $currentProjectId = $_GET[ 'selected_project' ];
-    $currentProject = searchWhere( $projects, "id_project", $currentProjectId );
-    $_SESSION[ "selected_project_id" ] = $currentProjectId;
-    $_SESSION[ "selected_project" ] = $currentProject;
+if (isset($_GET['selected_project'])) {
+    $currentProjectId = $_GET['selected_project'];
+    $currentProject = searchWhere($projects, "id_project", $currentProjectId);
+    $_SESSION["selected_project_id"] = $currentProjectId;
+    $_SESSION["selected_project"] = $currentProject;
 
     // print_r( $currentProject );
 } // si un projet est sélectionné ( session )
-else if ( isset( $_SESSION[ 'selected_project_id' ] ) ) {
-    $currentProjectId = $_SESSION[ 'selected_project_id' ];
-    $currentProject = $_SESSION[ 'selected_project' ];
+else if (isset($_SESSION['selected_project_id'])) {
+    $currentProjectId = $_SESSION['selected_project_id'];
+    $currentProject = $_SESSION['selected_project'];
     //$currentProject = searchWhere( $projects, "id_project", $currentProjectId );
 
     // print_r( $currentProject );
-} else if ( count( $projects ) > 0 ) {
+} else if (count($projects) > 0) {
     // si aucun item sélectionné et qu'il existe des projets : selectionne le 1er projet
-    $currentProject = $projects[ 0 ];
-    $currentProjectId = $currentProject[ "id_project" ];
-    error_log( "default project selection $currentProjectId » " . $currentProject[ 'title' ] );
+    $currentProject = $projects[0];
+    $currentProjectId = $currentProject["id_project"];
+    error_log("default project selection $currentProjectId » " . $currentProject['title']);
 }
 
 // chargement des catégories du projet selectionné
-if ( isset( $currentProjectId ) ) {
-    $projectCategories = getProjectCategories( $currentProjectId );
+if (isset($currentProjectId)) {
+    $projectCategories = getProjectCategories($currentProjectId);
 
-    error_log( "projectCategories " . count( $projectCategories ) );
+    error_log("projectCategories " . count($projectCategories));
 }
 ?>
 
@@ -257,128 +258,143 @@ if ( isset( $currentProjectId ) ) {
 </head>
 <body>
 
-<?php echo_topbar(); ?>
+<div id="app">
+    <?php echo_topbar(); ?>
 
-<?php
-// si utilisateur vient d'être inscrit : proposition tuto ( non implémenté )
-if ( isset( $_GET[ 'new_user' ] ) ) {
-    ?>
-    <div id="tutoLink" class="info-box">
-        <p>Bienvenue sur Donatello <?php echo $_SESSION[ 'username' ]; ?>, souhaitez-vous voir le tutoriel ?
-            <a href="tutorial">Oui</a> - <a href="#" onclick="hideTutoLink()">Plus tard</a></p>
-    </div>
     <?php
-}
-?>
-
-<div id="container">
-    <div id="projects-box">
-        <h2>Projets</h2>
-        <div class="box">
-            <a class="add" href="forms/project_form.php">Nouveau projet</a>
+    // si utilisateur vient d'être inscrit : proposition tuto ( non implémenté )
+    if (isset($_GET['new_user'])) {
+        ?>
+        <div id="tutoLink" class="info-box">
+            <p>Bienvenue sur Donatello <?php echo $_SESSION['username']; ?>, souhaitez-vous voir le tutoriel ?
+                <a href="tutorial">Oui</a> - <a href="#" onclick="hideTutoLink()">Plus tard</a></p>
         </div>
         <?php
+    }
+    ?>
 
-        foreach ( $projects as $project ) {
-            $selected = ( $project[ 'id_project' ] == $currentProjectId ) ? 'selected' : '';
-            $selectionLink = $_SERVER[ 'PHP_SELF' ] . "?selected_project=" . $project[ 'id_project' ];
-            ?>
+    <div id="container">
+        <div id="projects-box">
+            <h2>Projets</h2>
+            <a class="add" href="forms/project_form.php"> <span class="pseudo-icon">+</span> ajouter un projet</a>
 
-            <div class="project <?php echo $selected; ?>">
-                <a href="<?php echo $selectionLink; ?>">
-                    <?php echo $project[ 'title' ]; ?>
-                </a>
+            <div class="list">
+                <?php
+
+                foreach ($projects as $project) {
+                    $selected = ($project['id_project'] == $currentProjectId) ? 'selected' : '';
+                    $selectionLink = $_SERVER['PHP_SELF'] . "?selected_project=" . $project['id_project'];
+                    ?>
+
+                    <div class="project <?php echo $selected; ?>">
+                        <a href="<?php echo $selectionLink; ?>">
+                            <?php echo $project['title']; ?>
+                        </a>
+                    </div>
+
+                <?php } ?>
+
             </div>
+        </div>
 
-        <?php } ?>
+        <?php if (isset($currentProject)) { ?>
+            <div id="detail-box">
+                <div class="detail-header box-header">
 
-    </div>
+                    <h2><?php if (isset($currentProject)) {
+                            echo $currentProject['title'];
+                        } ?> </h2>
 
-    <?php if ( isset( $currentProject ) ) { ?>
-        <div id="detail-box">
-            <div class="detail-header">
-
-                <h2><?php if ( isset( $currentProject ) ) {
-                        echo $currentProject[ 'title' ];
-                    } ?>
-                    <form action="<?php echo $_SERVER[ 'PHP_SELF' ]; ?>" method="post">
+                    <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
                         <input type="hidden" name="id_project" value="<?php echo $currentProjectId ?>"/>
                         <input type="hidden" name="action" value="delete_project"/>
-                        <button>Supprimer</button>
+                        <a class="add" href="#" onclick="this.form.submit()">Supprimer</a>
+                        <!--<button>Supprimer</button>-->
                     </form>
-                    <span class="clr"></span>
-                </h2>
-
-            </div>
-            <div class="toolbar">
-                <a href="forms/category_form.php?current_project_id=<?php echo $currentProjectId; ?>">
-                    Ajouter une catégorie</a>
-            <span>
-                <input id="chk_showArchives" type="checkbox" onchange="updateArchivesVisibility()"/>
-                <label for="chk_showArchives">Afficher les tâches complétées</label>
-            </span>
-                <form class="inline-form" action="<?php echo $_SERVER[ 'PHP_SELF' ]; ?>" method="post">
-                    <input type="hidden" name="id_project" value="<?php echo $currentProjectId ?>"/>
-                    <input type="hidden" name="action" value="clear_completed"/>
-                    <button>Supprimer les archives</button>
-                </form>
-            </div>
-            <?php
-            foreach ( $projectCategories as $category ) {
-                $name = $category[ 'name' ];
-                error_log( 'category tasks ' . count( $category[ 'tasks' ] ) );
-                ?>
-                <div class="category-box">
-                    <h4 class="category"><?php echo $name; ?>
-                        <form action="<?php echo $_SERVER[ 'PHP_SELF' ]; ?>">
-                            <input type="hidden" name="id_category"
-                                   value="<?php echo $category[ 'id_category' ]; ?>"/>
-                            <input type="hidden" name="action" value="delete_category"/>
-                            <span><a onclick="this.form.submit()" href="#">Supprimer</a></span>
-                        </form>
-                    </h4>
-                    <div class="new-task-box">
-                        <form action="<?php echo $_SERVER[ 'PHP_SELF' ]; ?>" method="post">
-                            <input class="t-input" type="text" name="task_title" required/>
-                            <!--<input class="dt-input" type="datetime-local" name="due" width="60"/>-->
-                            <input type="hidden" name="id_category"
-                                   value="<?php echo $category[ 'id_category' ]; ?>"/>
-                            <input type="hidden" name="action" value="new_task"/>
-                            <button>Ajouter</button>
-                        </form>
+                </div>
+                <div class="toolbar">
+                    <a class="add" href="forms/category_form.php?current_project_id=<?php echo $currentProjectId; ?>">
+                        Ajouter une catégorie</a>
+                    <div class="bt-archives">
+                        <input id="chk_showArchives" type="checkbox" onchange="updateArchivesVisibility()"/>
+                        <label for="chk_showArchives">Afficher les tâches archivées</label>
                     </div>
-                    <ul class="task-list">
-                        <?php
-                        if ( isset( $category[ 'tasks' ] ) ) {
-                            error_log( 'task renderer' . count( $category[ 'tasks' ] ) );
-                            foreach ( $category[ 'tasks' ] as $task ) {
-                                $idTask = $task[ 'id_task' ];
-                                $title = $task[ 'title' ];
-                                $checkId = "chkbox_" . $idTask;
-                                $isSelected = $task[ 'completed' ] == false ? '' : ' checked ';
-                                error_log( '$task[ \'completed\' ] ' . $task[ 'completed' ] . ' » ' . ( $task[ 'completed' ] == false ) . ' s ' . $isSelected );
-                                ?>
-                                <li class="task" data-complete="<?php echo $isSelected ? 1 : 0; ?>">
-                                    <form method="post" action="<?php echo $_SERVER[ 'PHP_SELF' ]; ?>">
-                                        <input id="<?php echo $checkId; ?>" type="checkbox" name="is_complete" value="1" <?php echo $isSelected; ?>
-                                               onchange="this.form.submit()"
-                                        >
-                                        <label for="<?php echo $checkId; ?>"><?php echo $title; ?></label>
-                                        <input type="hidden" name="id_task" value="<?php echo $idTask; ?>"/>
-                                        <input type="hidden" name="action" value="update_task_state"/>
-
-                                    </form>
-                                </li>
-                            <?php }
-                        } ?>
-
-                    </ul>
+                    <form id="archive-form" class="inline-form" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+                        <input type="hidden" name="id_project" value="<?php echo $currentProjectId ?>"/>
+                        <input type="hidden" name="action" value="clear_completed"/>
+                        <a class="remove" onclick="byId('archive-form').submit()" href="#">Supprimer les archives</a>
+                        <!--<button>Supprimer les archives</button>-->
+                    </form>
                 </div>
                 <?php
-            }
-            ?>
-        </div>
-    <?php } ?>
+                foreach ($projectCategories as $key => $category) {
+                    $name = $category['name'];
+                    $cID = $category['id_category'];
+                    error_log('category tasks ' . count($category['tasks']));
+                    ?>
+                    <div class="category-box">
+                        <div class="box-header">
+                            <h4 class="category">
+                                <?php echo $name; ?>
+                                <a class="icon-button open-close" onclick="hideCategory(event)" href="#"
+                                   data-category-id="<?php echo $cID; ?>" data-is-visible="1">
+                                    Masquer
+                                </a>
+                            </h4>
+                            <div class="action-box">
+
+                                <form action="<?php echo $_SERVER['PHP_SELF']; ?>">
+                                    <input type="hidden" name="id_category"
+                                           value="<?php echo $cID; ?>"/>
+                                    <input type="hidden" name="action" value="delete_category"/>
+                                    <button onclick="this.form.submit()">Supprimer</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div id="new-task-box<?php echo $cID; ?>" class="new-task-box">
+                            <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+                                <input class="t-input" type="text" name="task_title" required/>
+                                <!--<input class="dt-input" type="datetime-local" name="due" width="60"/>-->
+                                <input type="hidden" name="id_category"
+                                       value="<?php echo $cID; ?>"/>
+                                <input type="hidden" name="action" value="new_task"/>
+                                <button>Ajouter</button>
+                            </form>
+                        </div>
+                        <ul id="category-tasks-list<?php echo $cID; ?>" class="task-list">
+                            <?php
+                            if (isset($category['tasks'])) {
+                                error_log('task renderer' . count($category['tasks']));
+                                foreach ($category['tasks'] as $task) {
+                                    $idTask = $task['id_task'];
+                                    $title = $task['title'];
+                                    $checkId = "chkbox_" . $idTask;
+                                    $isSelected = $task['completed'] == false ? '' : ' checked ';
+                                    error_log('$task[ \'completed\' ] ' . $task['completed'] . ' » ' . ($task['completed'] == false) . ' s ' . $isSelected);
+                                    ?>
+                                    <li class="task" data-complete="<?php echo $isSelected ? 1 : 0; ?>">
+                                        <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+                                            <input id="<?php echo $checkId; ?>" type="checkbox" name="is_complete"
+                                                   value="1" <?php echo $isSelected; ?>
+                                                   onchange="this.form.submit()"
+                                            >
+                                            <label for="<?php echo $checkId; ?>"><?php echo $title; ?></label>
+                                            <input type="hidden" name="id_task" value="<?php echo $idTask; ?>"/>
+                                            <input type="hidden" name="action" value="update_task_state"/>
+
+                                        </form>
+                                    </li>
+                                <?php }
+                            } ?>
+
+                        </ul>
+                    </div>
+                    <?php
+                }
+                ?>
+            </div>
+        <?php } ?>
+    </div>
 </div>
 <script>
 
@@ -395,6 +411,26 @@ if ( isset( $_GET[ 'new_user' ] ) ) {
     function hideTutoLink() {
         console.log('hideTutoLink');
         hide(byId('tutoLink'));
+    }
+
+    function hideCategory(e) {
+        var isCategoryVisible = e.target.dataset.isVisible == 1;
+        console.log('isCategoryVisible', isCategoryVisible);
+        e.target.textContent = isCategoryVisible ? 'Afficher' : 'Masquer';
+
+        var cId = e.target.dataset.categoryId;
+        // masque le formulaire d'ajout
+        var form = byId('new-task-box' + cId);
+        hidden(form, isCategoryVisible)
+        // masque la liste de tâches
+        var list = byId('category-tasks-list' + cId);
+        var categoryTaskViews = children(list);
+        console.log('categoryId', categoryTaskViews.length);
+        categoryTaskViews.forEach(function (t) {
+            hidden(t, isCategoryVisible);
+            //hide(t);
+        });
+        e.target.dataset.isVisible = isCategoryVisible ? 0 : 1;
     }
 
     window.onload = updateArchivesVisibility;
